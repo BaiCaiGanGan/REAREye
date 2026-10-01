@@ -5,6 +5,9 @@ on:
     branches: [ "master", "main", "dev" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,26 +21,44 @@ jobs:
         with:
           fetch-depth: 0
 
-      #- name: Set up JDK 21
-      #  uses: actions/setup-java@v5
-      #  with:
-      #    java-version: "21"
-      #    distribution: "temurin"
-      #    cache: gradle
-
-      - name: Write key File
+      - name: Prepare signing key
+        shell: bash
         run: |
-          if [ ! -z "${{ secrets.SIGNING_KEY }}" ]; then
-            echo androidStoreFile=`pwd`/release-key.jks >> local.properties
-            echo ${{ secrets.SIGNING_KEY }} | base64 --decode > release-key.jks
+          set -euo pipefail
+
+          alias_value="${KEY_ALIAS:-reareye-ci}"
+          store_password="${KEYSTORE_PASSWORD:-reareye-ci-password}"
+          key_password="${KEY_PASSWORD:-reareye-ci-password}"
+
+          if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
+            echo "Using repository signing key."
+            echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > release-key.jks
+          else
+            echo "SIGNING_KEY is not configured; generating a temporary CI signing key."
+            keytool -genkeypair \
+              -keystore release-key.jks \
+              -storepass "$store_password" \
+              -keypass "$key_password" \
+              -alias "$alias_value" \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=REAREye CI,O=BaiCaiGanGan,C=CN"
           fi
+
+          {
+            echo "androidStoreFile=$(pwd)/release-key.jks"
+            echo "KEY_ALIAS=$alias_value"
+            echo "KEYSTORE_PASSWORD=$store_password"
+            echo "KEY_PASSWORD=$key_password"
+          } >> local.properties
 
       - name: Setup Android SDK
         uses: amyu/setup-android@v5
         with:
           distribution: "zulu"
           java-version: "21"
-      
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
@@ -45,25 +66,38 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug -PbuildSuffix=canary
+        run: ./gradlew --no-daemon assembleDebug -PbuildSuffix=canary
 
-      - name: Build and Sign Release APK
-        run: ./gradlew assembleRelease -PbuildSuffix=canary
+      - name: Build Release APK
+        run: ./gradlew --no-daemon assembleRelease -PbuildSuffix=canary
+
+      - name: List APK outputs
+        if: always()
+        run: |
+          echo "==== Debug ===="
+          find app/build/outputs/renamed-apk/debug -maxdepth 1 -type f -print 2>/dev/null || true
+          echo "==== Release ===="
+          find app/build/outputs/renamed-apk/release -maxdepth 1 -type f -print 2>/dev/null || true
+          echo "==== Mapping ===="
+          find app/build/outputs/mapping/release -maxdepth 1 -type f -print 2>/dev/null || true
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v7
         with:
-          name: app-debug
+          name: reareye-debug
           path: app/build/outputs/renamed-apk/debug/*.apk
+          if-no-files-found: error
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v7
         with:
-          name: app-release
+          name: reareye-release
           path: app/build/outputs/renamed-apk/release/*.apk
+          if-no-files-found: error
 
       - name: Upload Release Mapping
         uses: actions/upload-artifact@v7
         with:
-          name: release-mapping
+          name: reareye-release-mapping
           path: app/build/outputs/mapping/release/*
+          if-no-files-found: warn
