@@ -550,6 +550,8 @@ Widget: %2$s · Priority: %3$d</string>
     <string name="cfg_disable_subscreen_high_load_mode">Rear High Load Mode Disabled Apps</string>
     <string name="cfg_disable_subscreen_high_load_mode_desc">Choose main-screen foreground apps where rear high-load mode handling should be skipped</string>
     <string name="cfg_more_debug">More debug output</string>
+    <string name="cfg_theme_manager_preset_compat_mode">ThemeManager Compatibility Mode (WhatIsThis)</string>
+    <string name="cfg_theme_manager_preset_compat_mode_desc">Skips REAREye preset-resource file hooks in Theme Manager to reduce conflicts with modules such as WhatIsThis. Rear-screen-center hooks remain enabled.</string>
     <string name="subcategory_lyrics">Lyrics</string>
     <string name="subcategory_lyrics_desc">Manage lyrics options</string>
     <string name="credits_docs">Documentation</string>
