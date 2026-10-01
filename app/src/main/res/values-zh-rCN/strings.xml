@@ -550,6 +550,8 @@
     <string name="cfg_disable_subscreen_high_load_mode">背屏高负载模式移除白名单</string>
     <string name="cfg_disable_subscreen_high_load_mode_desc">选择在主屏前台时需要跳过背屏高负载模式处理的应用</string>
     <string name="cfg_more_debug">更多调试输出</string>
+    <string name="cfg_theme_manager_preset_compat_mode">ThemeManager 兼容模式（WhatIsThis）</string>
+    <string name="cfg_theme_manager_preset_compat_mode_desc">开启后跳过 REAREye 在主题管理中的预设资源文件 Hook，减少与 WhatIsThis 等主题模块的冲突；背屏中心相关 Hook 不受影响。</string>
     <string name="subcategory_lyrics">歌词</string>
     <string name="subcategory_lyrics_desc">管理歌词配置</string>
     <string name="credits_docs">文档</string>
