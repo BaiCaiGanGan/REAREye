@@ -4,6 +4,7 @@ import android.system.Os
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import hk.uwu.reareye.hook.core.YLog
 import hk.uwu.reareye.hook.core.YukiBaseHooker
+import hk.uwu.reareye.ui.config.ConfigKeys
 import java.io.File
 import java.io.FileInputStream
 import java.util.zip.ZipFile
@@ -12,6 +13,15 @@ import java.util.zip.ZipFile
 class PresetPackFilesHook : YukiBaseHooker() {
     override fun onHook() {
         if (packageName !in TARGET_PACKAGES || !isRearDevice) return
+        if (
+            packageName == "com.android.thememanager" &&
+            prefs.getBoolean(ConfigKeys.THEME_MANAGER_PRESET_COMPAT_MODE, false)
+        ) {
+            YLog.warn(
+                "ThemeManager compatibility mode: skip PresetPackFilesHook for $packageName"
+            )
+            return
+        }
         val store = PresetPackRuntimeStore(prefs, appInfo)
         if (!store.load()) return
 
