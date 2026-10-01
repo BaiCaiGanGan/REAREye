@@ -100,6 +100,14 @@ class PresetPackFilesHook : YukiBaseHooker() {
     }
 
     private fun hookZipFile(store: PresetPackRuntimeStore) {
+        // Android 17 (API 37) + PersonalAssistant: libxposed constructor interception
+        // currently crashes inside ZipFile -> File construction on this target. Keep the
+        // file/stream/native-open redirects above, but skip the ZipFile constructor hooks
+        // until the runtime path is safe on API 37.
+        if (android.os.Build.VERSION.SDK_INT >= 37 && packageName == "com.miui.personalassistant") {
+            YLog.warn("Android 17 compatibility: skip ZipFile constructor hooks for $packageName")
+            return
+        }
         ZipFile::class.java.resolve().firstConstructor {
             parameters(String::class.java)
         }.hook().before {
