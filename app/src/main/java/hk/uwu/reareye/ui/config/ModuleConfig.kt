@@ -108,6 +108,7 @@ object ConfigKeys {
         "subscreen_high_load_mode_disabled_apps"
 
     const val MORE_DEBUG = "enable_more_debug_logging"
+    const val THEME_MANAGER_PRESET_COMPAT_MODE = "theme_manager_preset_compat_mode"
     const val MODULE_FAVORITE_CONFIG_NODES = "module_favorite_config_nodes"
     const val MODULE_NAVIGATION_QUICK_ACTIONS = "module_navigation_quick_actions"
 
@@ -281,6 +282,12 @@ val REAREyeConfig = listOf(
             ConfigItem(
                 key = ConfigKeys.MORE_DEBUG,
                 titleRes = R.string.cfg_more_debug,
+                type = ConfigType.BooleanVal(defaultValue = false)
+            ),
+            ConfigItem(
+                key = ConfigKeys.THEME_MANAGER_PRESET_COMPAT_MODE,
+                titleRes = R.string.cfg_theme_manager_preset_compat_mode,
+                descriptionRes = R.string.cfg_theme_manager_preset_compat_mode_desc,
                 type = ConfigType.BooleanVal(defaultValue = false)
             )
         )
